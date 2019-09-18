@@ -175,6 +175,14 @@ static NSDictionary* customCertificatesForHost;
         [wkWebViewConfig.userContentController addUserScript:initialScript];
     }
 
+    if (_injectedJavaScript) {
+        WKUserScript *initialScript =
+        [[WKUserScript alloc] initWithSource:_injectedJavaScript
+                               injectionTime:WKUserScriptInjectionTimeAtDocumentStart
+                              forMainFrameOnly: YES];
+        [wkWebViewConfig.userContentController addUserScript:initialScript];
+    }
+
     wkWebViewConfig.allowsInlineMediaPlayback = _allowsInlineMediaPlayback;
 #if WEBKIT_IOS_10_APIS_AVAILABLE
     wkWebViewConfig.mediaTypesRequiringUserActionForPlayback = _mediaPlaybackRequiresUserAction
@@ -900,7 +908,7 @@ static NSDictionary* customCertificatesForHost;
         _onHttpError(event);
       }
     }
-  }  
+  }
 
   decisionHandler(WKNavigationResponsePolicyAllow);
 }
