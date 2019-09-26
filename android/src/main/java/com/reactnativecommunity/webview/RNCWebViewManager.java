@@ -353,7 +353,7 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
         break;
       case "LOAD_CACHE_ELSE_NETWORK":
         cacheMode = WebSettings.LOAD_CACHE_ELSE_NETWORK;
-        break;  
+        break;
       case "LOAD_NO_CACHE":
         cacheMode = WebSettings.LOAD_NO_CACHE;
         break;
@@ -477,7 +477,7 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
   public void setMessagingEnabled(WebView view, boolean enabled) {
     ((RNCWebView) view).setMessagingEnabled(enabled);
   }
-   
+
   @ReactProp(name = "incognito")
   public void setIncognito(WebView view, boolean enabled) {
     // Remove all previous cookies
@@ -990,6 +990,11 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
       ) {
         return;
       }
+
+      if(newProgress >= 10){
+        ((RNCWebView) webView).setMessagingEnabled(true);
+      }
+
       WritableMap event = Arguments.createMap();
       event.putDouble("target", webView.getId());
       event.putString("title", webView.getTitle());
@@ -1002,6 +1007,7 @@ public class RNCWebViewManager extends SimpleViewManager<WebView> {
         new TopLoadingProgressEvent(
           webView.getId(),
           event));
+
     }
 
     @Override
