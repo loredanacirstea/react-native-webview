@@ -90,7 +90,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.OkHttpClient.Builder;
-import static okhttp3.internal.Util.UTF_8;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Manages instances of {@link WebView}
