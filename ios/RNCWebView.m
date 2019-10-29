@@ -158,13 +158,21 @@ static NSDictionary* customCertificatesForHost;
       NSString *source = [NSString stringWithFormat:
         @"window.%@ = {"
          "  postMessage: function (data) {"
-         "    window.webkit.messageHandlers.%@.postMessage(String(data));"
+         "    window.webkit.messageHandlers.%@.postMessage(data);"
          "  }"
          "};", MessageHandlerName, MessageHandlerName
       ];
 
       WKUserScript *script = [[WKUserScript alloc] initWithSource:source injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:YES];
       [wkWebViewConfig.userContentController addUserScript:script];
+    }
+
+    if (_injectedJavaScript) {
+        WKUserScript *initialScript =
+        [[WKUserScript alloc] initWithSource:_injectedJavaScript
+                               injectionTime:WKUserScriptInjectionTimeAtDocumentStart
+                              forMainFrameOnly: YES];
+        [wkWebViewConfig.userContentController addUserScript:initialScript];
     }
 
     if (_injectedJavaScript) {
@@ -369,8 +377,6 @@ static NSDictionary* customCertificatesForHost;
     return;
   }
 
-  CGFloat alpha = CGColorGetAlpha(backgroundColor.CGColor);
-  self.opaque = _webView.opaque = (alpha == 1.0);
   _webView.scrollView.backgroundColor = backgroundColor;
   _webView.backgroundColor = backgroundColor;
 }
@@ -725,11 +731,13 @@ static NSDictionary* customCertificatesForHost;
 */
 - (void)webView:(WKWebView *)webView runJavaScriptAlertPanelWithMessage:(NSString *)message initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(void))completionHandler
 {
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"" message:message preferredStyle:UIAlertControllerStyleAlert];
-    [alert addAction:[UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-        completionHandler();
-    }]];
-    [[self topViewController] presentViewController:alert animated:YES completion:NULL];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.7 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"" message:message preferredStyle:UIAlertControllerStyleAlert];
+        [alert addAction:[UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+            completionHandler();
+        }]];
+        [[self topViewController] presentViewController:alert animated:YES completion:NULL];
+    });
 
 }
 
@@ -900,7 +908,7 @@ static NSDictionary* customCertificatesForHost;
         _onHttpError(event);
       }
     }
-  }  
+  }
 
   decisionHandler(WKNavigationResponsePolicyAllow);
 }
